@@ -125,13 +125,9 @@ margin:6px 0;
 
 <script>
 /* ===== API GOOGLE SHEET ===== */
-const API_URL="https://script.google.com/macros/s/AKfycbzOhdIGZsKjwtXTeWP8fc9zYcdHrhKlXVPmWqy9VWaIgrOsiQ1Rs4LjtTnLli_-sFex/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbzY7g-RaDaWKoN7CVcpUp8UsCP_HaYSBBfzr2aiTRVaO5I_hRW0GR649RAYr6gG0Fh-/exec";
 /* ===== DATA SAMPLE ===== */
-let spareparts=[
-{kode:"VRM-01",nama:"PCB BOARD",qty:10},
-{kode:"VRM-02",nama:"BATTERY",qty:5},
-{kode:"VRM-03",nama:"LCD PANEL",qty:7},
-];
+let spareparts=[];
 
 let mode="";
 let activeIndex=null;
@@ -202,8 +198,28 @@ document.getElementById("extra2").style.display="none";
 
 }
 
-/* SUBMIT */
+/* LOAD STOCK FROM SHEET */
+async function loadStock(){
 
+let res=await fetch(API_URL+"?sheet=STOK_VERIMARK");
+
+let data=await res.json();
+
+data.shift();
+
+spareparts=data.map(r=>({
+kode:r[1],
+nama:r[2],
+qty:Number(r[3])
+}));
+
+render();
+}
+
+loadStock();
+
+
+/* SUBMIT FORM */
 async function submitForm(){
 
 let tanggal=document.getElementById("tanggal").value;
@@ -219,62 +235,33 @@ alert("Qty tidak valid");
 return;
 }
 
-/* UPDATE QTY */
-if(mode==="IN"){
-spareparts[activeIndex].qty+=qty;
-}
-
-if(mode==="OUT"){
-spareparts[activeIndex].qty-=qty;
-}
-
-render();
-
-/* ===== KIRIM KE GOOGLE SHEET ===== */
+/* ===== BUAT PAYLOAD ===== */
 
 let payload;
 
 if(mode==="IN"){
-
-payload=[
-"",
-tanggal,
-kode,
-nama,
-qty,
-extra1,
-extra2
-];
-
-await fetch(API_URL+"?sheet=IN_VERIMARK",{
-method:"POST",
-body:JSON.stringify(payload)
-});
-
+payload=["",tanggal,kode,nama,qty,extra1,extra2];
 }
 
 if(mode==="OUT"){
+payload=["",tanggal,kode,nama,qty,extra1];
+}
 
-payload=[
-"",
-tanggal,
-kode,
-nama,
-qty,
-extra1
-];
+/* ===== KIRIM KE GOOGLE SHEET ===== */
 
-await fetch(API_URL+"?sheet=OUT_VERIMARK",{
+await fetch(API_URL+"?sheet="+
+(mode==="IN"?"IN_VERIMARK":"OUT_VERIMARK"),{
 method:"POST",
 body:JSON.stringify(payload)
 });
 
-}
+/* ===== RELOAD DATA DARI SERVER ===== */
+
+await loadStock();
 
 document.getElementById("formModal").style.display="none";
 
 alert("Data berhasil tersimpan!");
-
 }
 
 window.onclick=function(e){
