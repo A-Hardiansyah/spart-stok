@@ -13,8 +13,12 @@
       font-family: 'Montserrat', sans-serif;
       background: url('bgweb.png') center/cover fixed;
       color: white;
-      text-align: center;
+      text-align: left;
       padding: 20px;
+    }
+
+    .title {
+      text-align: center;
     }
 
     .main-box {
@@ -78,13 +82,39 @@
       margin: 6px 0;
     }
 
+    .search-box {
+    width: 80%;
+    max-width: 700px;
+    padding: 10px 15px;
+    margin: 15px auto;
+    display: block;
+
+    border-radius: 30px;
+    border: none;
+    outline: none;
+
+    font-size: 14px;
+    }
+
+    .search-box:focus {
+    box-shadow: 0 0 10px purple;
+    }
+
   </style>
 </head>
 
 <body>
 
   <div class="main-box">
-    <h2>DATA STOCK VERIMARK</h2>
+    <h2 class="title">DATA STOCK VERIMARK</h2>
+
+    <input 
+    type="text" 
+    id="searchBox" 
+    placeholder="🔍 Cari Kode / Nama Sparepart..."
+    onkeyup="searchData()"
+    class="search-box"
+    >
 
     <table>
       <thead>
@@ -119,7 +149,28 @@
   </div>
 
   <script>
+    function searchData() {
 
+    let keyword = document
+        .getElementById("searchBox")
+        .value
+        .toLowerCase();
+
+    let rows = document.querySelectorAll("#stokBody tr");
+
+    rows.forEach(row => {
+
+        let kode = row.children[1].innerText.toLowerCase();
+        let nama = row.children[2].innerText.toLowerCase();
+
+        if (kode.includes(keyword) || nama.includes(keyword)) {
+        row.style.display = "";
+        } else {
+        row.style.display = "none";
+        }
+
+    });
+    }
     /* ===== API GOOGLE SHEET ===== */
     const API_URL = "https://script.google.com/macros/s/AKfycbyZoj7sf3lF5IJj1QoUh1VxwHuA5wUi7iz2zVhBPtEwy-kSperjCU6E-T9JJoGqt-zJ/exec";
 
