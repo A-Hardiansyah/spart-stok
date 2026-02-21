@@ -13,8 +13,11 @@
       font-family: 'Montserrat', sans-serif;
       background: url('bgweb.png') center/cover fixed;
       color: white;
-      text-align: center;
+      text-align: left;
       padding: 20px;
+    }
+    .title {
+      text-align: center;
     }
 
     .main-box {
@@ -77,14 +80,25 @@
       padding: 8px;
       margin: 6px 0;
     }
-
+    .search-box:focus {
+    box-shadow: 0 0 10px purple;
+    }
+    
   </style>
 </head>
 
 <body>
 
   <div class="main-box">
-    <h2>DATA STOCK GOGO</h2>
+    <h2 class="title">DATA STOCK VERIMARK</h2>
+
+    <input 
+    type="text" 
+    id="searchBox" 
+    placeholder="🔍 Cari Kode / Nama Sparepart..."
+    onkeyup="searchData()"
+    class="search-box"
+    >
 
     <table>
       <thead>
