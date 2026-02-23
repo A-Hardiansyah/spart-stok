@@ -17,6 +17,7 @@
       text-align: left;
       padding: 20px;
     }
+    
     .title {
       text-align: center;
     }
@@ -81,10 +82,25 @@
       padding: 8px;
       margin: 6px 0;
     }
+
+    .search-box {
+    width: 80%;
+    max-width: 700px;
+    padding: 10px 15px;
+    margin: 15px auto;
+    display: block;
+
+    border-radius: 30px;
+    border: none;
+    outline: none;
+
+    font-size: 14px;
+    }
+
     .search-box:focus {
     box-shadow: 0 0 10px purple;
     }
-    
+
   </style>
 </head>
 
@@ -134,7 +150,28 @@
   </div>
 
   <script>
+    function searchData() {
 
+    let keyword = document
+        .getElementById("searchBox")
+        .value
+        .toLowerCase();
+
+    let rows = document.querySelectorAll("#stokBody tr");
+
+    rows.forEach(row => {
+
+        let kode = row.children[1].innerText.toLowerCase();
+        let nama = row.children[2].innerText.toLowerCase();
+
+        if (kode.includes(keyword) || nama.includes(keyword)) {
+        row.style.display = "";
+        } else {
+        row.style.display = "none";
+        }
+
+    });
+    }
     /* ===== API GOOGLE SHEET ===== */
     const API_URL = "https://script.google.com/macros/s/AKfycbyZoj7sf3lF5IJj1QoUh1VxwHuA5wUi7iz2zVhBPtEwy-kSperjCU6E-T9JJoGqt-zJ/exec";
 
