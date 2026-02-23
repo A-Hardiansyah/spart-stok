@@ -59,5 +59,13 @@ background:#7d27c1;
 
 </div>
 
+    <script>
+  // Cek apakah sudah login
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+    alert("Kamu harus login dulu sebelum mengakses halaman ini!");
+    window.location.href = "login.html";
+  }
+</script>
+  
 </body>
 </html>
