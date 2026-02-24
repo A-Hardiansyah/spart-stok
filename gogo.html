@@ -100,7 +100,25 @@
     .search-box:focus {
     box-shadow: 0 0 10px purple;
     }
-
+    /* Responsive HP */
+    @media (max-width: 768px) {
+        body {
+            padding: 0 10px;   /* jarak kiri kanan */
+        }
+        .main-box {
+            width: 100%;       /* biar full hampir ke tepi */
+            margin: 10px auto;
+            margin: 15px 20px;
+        }
+    }
+    
+    /* Responsive layar besar (monitor gede) */
+    @media (min-width: 1400px) {
+        .main-box {
+            max-width: 1200px; /* biar nggak keliatan kekecilan */
+            padding: 40px;
+        }
+    }       
   </style>
 </head>
 
