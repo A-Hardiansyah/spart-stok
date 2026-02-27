@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DATA STOCK TEKNISI</title>
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: url('bgweb.png') center/cover fixed;
+      color: white;
+      text-align: left;
+      padding: 20px;
+    }
+    .title {
+      text-align: center;
+    }
+    
+    .main-box {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 25px;
+      border-radius: 15px;
+      max-width: 1100px;
+      margin: auto;
+      box-shadow: 0 0 30px purple;
+    }
+
+    table {
+      width: 100%;
+      background: white;
+      color: black;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    button {
+      padding: 6px 12px;
+      background: #6a0dad;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #7d27c1;
+    }
+
+    /* MODAL FORM */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-content {
+      background: white;
+      color: black;
+      padding: 20px;
+      margin: 8% auto;
+      width: 350px;
+      border-radius: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0;
+    }
+    .search-box {
+    width: 80%;
+    max-width: 700px;
+    padding: 10px 15px;
+    margin: 15px auto;
+    display: block;
+
+    border-radius: 30px;
+    border: none;
+    outline: none;
+
+    font-size: 14px;
+    }
+
+    .search-box:focus {
+    box-shadow: 0 0 10px purple;
+    }
+        /* Responsive HP */
+    @media (max-width: 768px) {
+        body {
+            padding: 0 10px;   /* jarak kiri kanan */
+        }
+        .main-box {
+            width: 100%;       /* biar full hampir ke tepi */
+            margin: 10px auto;
+            margin: 15px 20px;
+        }
+    }
+    
+    /* Responsive layar besar (monitor gede) */
+    @media (min-width: 1400px) {
+        .main-box {
+            max-width: 1200px; /* biar nggak keliatan kekecilan */
+            padding: 40px;
+        }
+    }       
+  </style>
+</head>
+
+<body>
+
+  <div class="main-box">
+    <h2 class="title">DATA STOCK TEKNISI</h2>
+
+    <input 
+    type="text" 
+    id="searchBox" 
+    placeholder="🔍 Cari Kode / Nama Sparepart..."
+    onkeyup="searchData()"
+    class="search-box"
+    >
+    
+    <table>
+      <thead>
+        <tr>
+          <th>NO</th>
+          <th>KODE</th>
+          <th>NAMA</th>
+          <th>QTY</th>
+          <th>IN</th>
+          <th>OUT</th>
+        </tr>
+      </thead>
+
+      <tbody id="stokBody"></tbody>
+    </table>
+  </div>
+
+  <!-- MODAL -->
+  <div id="formModal" class="modal">
+    <div class="modal-content">
+      <h3 id="formTitle"></h3>
+
+      <input id="tanggal" placeholder="Tanggal">
+      <input id="kode">
+      <input id="nama">
+      <input id="qty" type="number">
+      <input id="extra1">
+      <input id="extra2">
+
+      <button onclick="submitForm()">Submit</button>
+    </div>
+  </div>
+
+  <script>
+    function searchData() {
+
+    let keyword = document
+        .getElementById("searchBox")
+        .value
+        .toLowerCase();
+
+    let rows = document.querySelectorAll("#stokBody tr");
+
+    rows.forEach(row => {
+
+        let kode = row.children[1].innerText.toLowerCase();
+        let nama = row.children[2].innerText.toLowerCase();
+
+        if (kode.includes(keyword) || nama.includes(keyword)) {
+        row.style.display = "";
+        } else {
+        row.style.display = "none";
+        }
+
+    });
+    }
+    
+    /* ===== API GOOGLE SHEET ===== */
+    const API_URL = "https://script.google.com/macros/s/AKfycbyZoj7sf3lF5IJj1QoUh1VxwHuA5wUi7iz2zVhBPtEwy-kSperjCU6E-T9JJoGqt-zJ/exec";
+
+    /* ===== DATA SAMPLE ===== */
+    let spareparts = [];
+    let mode = "";
+    let activeIndex = null;
+
+    const tbody = document.getElementById("stokBody");
+
+    function render() {
+      tbody.innerHTML = "";
+
+      spareparts.forEach((sp, i) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${sp.kode}</td>
+            <td>${sp.nama}</td>
+            <td id="qty-${i}">${sp.qty}</td>
+            <td>
+              <button onclick="openForm('IN',${i})">IN</button>
+            </td>
+            <td>
+              <button onclick="openForm('OUT',${i})">OUT</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    render();
+
+    function resetForm() {
+      document.getElementById("tanggal").value = "";
+      document.getElementById("qty").value = "";
+      document.getElementById("extra1").value = "";
+      document.getElementById("extra2").value = "";
+      document.getElementById("extra2").style.display = "block";
+    }
+
+    /* OPEN FORM */
+    function openForm(type, index) {
+      resetForm();
+
+      mode = type;
+      activeIndex = index;
+
+      document.getElementById("formModal").style.display = "block";
+      document.getElementById("kode").value = spareparts[index].kode;
+      document.getElementById("nama").value = spareparts[index].nama;
+
+      if (type === "IN") {
+        document.getElementById("formTitle").innerText = "FORM IN";
+        document.getElementById("extra1").placeholder = "NO RPO";
+        document.getElementById("extra2").placeholder = "NO PL";
+      } else {
+        document.getElementById("formTitle").innerText = "FORM OUT";
+        document.getElementById("extra1").placeholder = "NO SPB";
+        document.getElementById("extra2").style.display = "none";
+      }
+    }
+
+    /* LOAD STOCK FROM SHEET */
+    async function loadStock() {
+      let res = await fetch(API_URL + "?sheet=STOK_TEKNISI");
+      let data = await res.json();
+
+      data.shift();
+
+      spareparts = data.map(r => ({
+        kode: r[1],
+        nama: r[2],
+        qty: Number(r[3])
+      }));
+
+      render();
+    }
+
+    loadStock();
+
+    /* SUBMIT FORM */
+    async function submitForm() {
+
+      let tanggal = document.getElementById("tanggal").value;
+      let kode = document.getElementById("kode").value;
+      let nama = document.getElementById("nama").value;
+      let qty = parseInt(document.getElementById("qty").value);
+      let extra1 = document.getElementById("extra1").value;
+      let extra2 = document.getElementById("extra2").value;
+
+      if (!qty || qty <= 0) {
+        alert("Qty tidak valid");
+        return;
+      }
+
+      let payload;
+
+      if (mode === "IN") {
+        payload = ["", tanggal, kode, nama, qty, extra1, extra2];
+      }
+
+      if (mode === "OUT") {
+        payload = ["", tanggal, kode, nama, qty, extra1];
+      }
+
+
+      await fetch(
+        API_URL + "?sheet=" + (mode === "IN" ? "IN_TEKNISI" : "OUT_TEKNISI"),
+        {
+          method: "POST",
+          body: JSON.stringify(payload)
+        }
+      );
+
+      await loadStock();
+
+      document.getElementById("formModal").style.display = "none";
+
+      alert("Data berhasil tersimpan!");
+
+    }
+
+    window.onclick = function (e) {
+      let modal = document.getElementById("formModal");
+      if (e.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+  </script>
+
+</body>
+
+</html>
